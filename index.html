@@ -456,7 +456,7 @@ async function fetchArticles(query, append){
   }
 
   try{
-    const res = await fetch(`/.netlify/functions/pubmed?q=${encodeURIComponent(currentQuery)}&start=${currentStart}`);
+    const res = await fetch(`/.https://vademed.vercel.app/api/pubmed?q=${encodeURIComponent(currentQuery)}&start=${currentStart}`);
     const data = await res.json();
 
     if(!res.ok || data.error){
