@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vade Med — Notícias e Artigos Médicos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE9DD;
+    --card:#F8F5EB;
+    --ink:#1B2420;
+    --ink-soft:#4A5650;
+    --teal:#2F6F5E;
+    --teal-dark:#20493D;
+    --amber:#B8863B;
+    --rule:#C7C0AA;
+    --red-tab:#8B3A3A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .masthead{
+    border-bottom:2px solid var(--ink);
+    padding:28px 5vw 18px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .masthead h1{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    font-size:clamp(2.2rem, 5vw, 3.4rem);
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .masthead h1 em{
+    font-style:italic;
+    color:var(--teal);
+  }
+  .masthead .meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    text-align:right;
+    line-height:1.5;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+
+  .tabs{
+    display:flex;
+    gap:0;
+    padding:0 5vw;
+    margin-top:14px;
+  }
+  .tab-btn{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    background:var(--rule);
+    color:var(--ink-soft);
+    border:none;
+    padding:11px 26px 9px;
+    cursor:pointer;
+    clip-path:polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    margin-right:-8px;
+    transition:background .15s, color .15s;
+  }
+  .tab-btn.active{
+    background:var(--card);
+    color:var(--ink);
+    font-weight:600;
+    box-shadow: 0 -2px 0 var(--teal) inset;
+  }
+  .tab-btn:hover:not(.active){ background:#D8D2BE; }
+
+  main{
+    background:var(--card);
+    min-height:60vh;
+    padding:34px 5vw 60px;
+    border-top:2px solid var(--ink);
+  }
+  .panel{ display:none; }
+  .panel.active{ display:block; animation:fade .25s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ---- News tab ---- */
+  .news-list{ list-style:none; margin:0; padding:0; max-width:920px; }
+  .news-item{
+    display:grid;
+    grid-template-columns:70px 1fr;
+    gap:22px;
+    padding:20px 0;
+    border-bottom:1px solid var(--rule);
+  }
+  .news-item:first-child{ padding-top:0; }
+  .news-time{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--teal-dark);
+    padding-top:4px;
+  }
+  .news-tag{
+    display:inline-block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.07em;
+    text-transform:uppercase;
+    background:var(--amber);
+    color:#fff;
+    padding:2px 8px;
+    border-radius:2px;
+    margin-bottom:8px;
+  }
+  .news-item h3{
+    font-family:'Newsreader', serif;
+    font-weight:500;
+    font-size:1.35rem;
+    margin:0 0 6px;
+    line-height:1.25;
+  }
+  .news-item p{
+    margin:0;
+    color:var(--ink-soft);
+    font-size:0.95rem;
+    line-height:1.55;
+    max-width:66ch;
+  }
+  .news-why{
+    margin-top:8px !important;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem !important;
+    color:var(--teal-dark) !important;
+    font-style:normal;
+  }
+
+  /* ---- Articles tab ---- */
+  .search-row{
+    display:flex;
+    gap:10px;
+    max-width:720px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+  }
+  #search-input{
+    flex:1;
+    min-width:220px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:1rem;
+    padding:12px 16px;
+    border:1.5px solid var(--ink);
+    background:var(--paper);
+    color:var(--ink);
+    border-radius:2px;
+  }
+  #search-input:focus{ outline:2px solid var(--teal); outline-offset:1px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:26px; }
+  .chip{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    padding:6px 12px;
+    border:1px solid var(--ink-soft);
+    background:transparent;
+    color:var(--ink-soft);
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  .chip.active, .chip:hover{ background:var(--teal); color:#fff; border-color:var(--teal); }
+
+  .result-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    margin-bottom:14px;
+  }
+
+  .card-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(300px, 1fr));
+    gap:22px;
+  }
+  .article-card{
+    background:var(--paper);
+    border:1px solid var(--ink);
+    padding:18px 18px 16px;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .punch-row{
+    display:flex;
+    gap:5px;
+    position:absolute;
+    top:8px;
+    right:10px;
+  }
+  .punch-row span{
+    width:5px; height:5px; border-radius:50%;
+    background:var(--rule);
+  }
+  .article-eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.65rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--teal-dark);
+  }
+  .article-card h4{
+    font-family:'Newsreader', serif;
+    font-weight:600;
+    font-size:1.15rem;
+    margin:0;
+    line-height:1.3;
+  }
+  .article-meta{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-soft);
+  }
+  .article-abstract{
+    font-size:0.88rem;
+    color:var(--ink-soft);
+    line-height:1.5;
+    margin:0;
+  }
+  .article-takeaway{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--teal-dark);
+    line-height:1.5;
+    margin:0;
+    padding-top:8px;
+    border-top:1px dashed var(--rule);
+  }
+  .article-card a.read-link{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--teal);
+    text-decoration:none;
+    border-top:1px solid var(--rule);
+    padding-top:10px;
+    margin-top:auto;
+  }
+  .article-card a.read-link:hover{ text-decoration:underline; }
+
+  .empty-state{
+    font-family:'IBM Plex Mono', monospace;
+    color:var(--ink-soft);
+    font-size:0.9rem;
+    padding:40px 0;
+  }
+
+  footer{
+    padding:16px 5vw;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.68rem;
+    color:var(--ink-soft);
+    text-align:center;
+    background:var(--paper);
+  }
+
+  @media (max-width:560px){
+    .masthead{ flex-direction:column; align-items:flex-start; }
+    .masthead .meta{ text-align:left; }
+    .news-item{ grid-template-columns:1fr; gap:6px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <h1>Va<em>de</em> Med</h1>
+  <div class="meta">Edição diária · Domingo, 12 de julho de 2026<br>Para estudantes de medicina &amp; médicos em atualização</div>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-panel="news">Notícias do dia</button>
+  <button class="tab-btn" data-panel="articles">Busca de artigos</button>
+</nav>
+
+<main>
+  <!-- NEWS PANEL -->
+  <section id="news" class="panel active">
+    <ul class="news-list" id="news-list"></ul>
+  </section>
+
+  <!-- ARTICLES PANEL -->
+  <section id="articles" class="panel">
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Buscar por especialidade ou tema, ex: técnicas de bariátrica...">
+    </div>
+    <div class="chips" id="chip-row"></div>
+    <div class="result-count" id="result-count"></div>
+    <div class="card-grid" id="card-grid"></div>
+    <div style="text-align:center; margin-top:24px;">
+      <button id="load-more-btn" style="display:none; font-family:'IBM Plex Mono', monospace; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; padding:10px 24px; background:var(--teal); color:#fff; border:none; border-radius:2px; cursor:pointer;">Ver mais</button>
+    </div>
+  </section>
+</main>
+
+<footer>Notícias de exemplo para demonstração da interface. Os artigos exibidos na busca vêm em tempo real do PubMed/MEDLINE.</footer>
+
+<script>
+const news = [
+  {time:"07:12", tag:"Cardiologia", title:"Novo protocolo de reabilitação cardíaca reduz tempo de internação", body:"Hospitais que adotaram o protocolo relatam recuperação mais rápida em pacientes pós-infarto, segundo levantamento interno apresentado em congresso regional.", why:"Relevante para rotina de UTI e enfermarias de pós-operatório."},
+  {time:"08:45", tag:"Saúde pública", title:"Campanha de vacinação de inverno é ampliada em capitais", body:"Secretarias de saúde estendem o horário de funcionamento das unidades básicas para atender à demanda sazonal.", why:"Impacta orientação a pacientes na atenção primária."},
+  {time:"09:30", tag:"Oncologia", title:"Estudo multicêntrico avalia nova combinação terapêutica", body:"Pesquisadores acompanham grupo de pacientes para comparar resposta ao tratamento combinado frente ao protocolo padrão.", why:"Acompanhar pode mudar critério de escolha terapêutica em breve."},
+  {time:"10:15", tag:"Cirurgia", title:"Técnicas minimamente invasivas ganham espaço em centros cirúrgicos", body:"Equipes relatam menor tempo de recuperação pós-operatória com adoção de abordagens laparoscópicas e robóticas.", why:"Bom tema para revisão de curva de aprendizado em residência."},
+  {time:"11:50", tag:"Endocrinologia", title:"Sociedade médica revisa diretrizes sobre manejo do diabetes tipo 2", body:"Atualização traz recomendações sobre acompanhamento nutricional e uso combinado de medicações.", why:"Diretriz nova costuma cair em prova e muda conduta ambulatorial."},
+  {time:"13:20", tag:"Neurologia", title:"Novo exame de imagem auxilia diagnóstico precoce", body:"Ferramenta é testada em rede de clínicas para identificar alterações antes do surgimento de sintomas.", why:"Pode antecipar encaminhamento em casos de suspeita clínica."},
+  {time:"15:05", tag:"Pediatria", title:"Consultas de rotina infantil têm alta procura no início do ano letivo", body:"Pediatras recomendam agendamento antecipado para exames e atualização de carteira de vacinação.", why:"Bom lembrete para orientar famílias na consulta de rotina."},
+];
+
+
+
+// Render news
+const newsList = document.getElementById('news-list');
+news.forEach(n=>{
+  const li = document.createElement('li');
+  li.className = 'news-item';
+  li.innerHTML = `
+    <div class="news-time">${n.time}</div>
+    <div>
+      <span class="news-tag">${n.tag}</span>
+      <h3>${n.title}</h3>
+      <p>${n.body}</p>
+      <p class="news-why">Por que importa: ${n.why}</p>
+    </div>`;
+  newsList.appendChild(li);
+});
+
+// Dicionário de termos comuns em português traduzidos para inglês
+// (o PubMed é majoritariamente em inglês, então isso ajuda a achar mais resultados)
+const ptToEnDictionary = {
+  "cirurgia cardíaca": "cardiac surgery",
+  "cirurgia cardiaca": "cardiac surgery",
+  "cirurgia bariátrica": "bariatric surgery",
+  "cirurgia bariatrica": "bariatric surgery",
+  "técnicas de bariátrica": "bariatric surgery techniques",
+  "tecnicas de bariatrica": "bariatric surgery techniques",
+  "cardiologia": "cardiology",
+  "oncologia": "oncology",
+  "neurologia": "neurology",
+  "endocrinologia": "endocrinology",
+  "pediatria": "pediatrics",
+  "diabetes": "diabetes",
+  "hipertensão": "hypertension",
+  "hipertensao": "hypertension",
+  "câncer": "cancer",
+  "cancer": "cancer",
+  "avc": "stroke",
+  "derrame": "stroke",
+  "infarto": "myocardial infarction",
+  "obesidade": "obesity",
+  "asma": "asthma",
+  "pneumonia": "pneumonia",
+  "covid": "covid-19",
+  "gravidez": "pregnancy",
+  "vacina": "vaccine",
+  "depressão": "depression",
+  "depressao": "depression",
+  "ansiedade": "anxiety",
+  "alzheimer": "alzheimer",
+  "artrite": "arthritis",
+  "insuficiência renal": "renal failure",
+  "insuficiencia renal": "renal failure",
+};
+
+function translateQuery(q){
+  const lower = q.trim().toLowerCase();
+  return ptToEnDictionary[lower] || q;
+}
+
+// Especialidades de acesso rápido (cada uma dispara uma busca real no PubMed)
+const specialties = ["cardiologia", "oncologia", "neurologia", "endocrinologia", "pediatria", "cirurgia bariátrica"];
+const chipRow = document.getElementById('chip-row');
+let activeQuery = "";
+
+function makeChip(label, value){
+  const btn = document.createElement('button');
+  btn.className = 'chip';
+  btn.textContent = label;
+  btn.addEventListener('click', ()=>{
+    searchInput.value = value || "";
+    document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+    if(value) btn.classList.add('active');
+    fetchArticles(value || "");
+  });
+  return btn;
+}
+chipRow.appendChild(makeChip('Limpar busca', ""));
+specialties.forEach(s => chipRow.appendChild(makeChip(s.charAt(0).toUpperCase()+s.slice(1), s)));
+
+const cardGrid = document.getElementById('card-grid');
+const resultCount = document.getElementById('result-count');
+const searchInput = document.getElementById('search-input');
+const loadMoreBtn = document.getElementById('load-more-btn');
+let searchTimeout = null;
+let currentQuery = "";
+let currentStart = 0;
+let totalResults = 0;
+const pageSize = 10;
+
+function renderCards(articles){
+  articles.forEach(a=>{
+    const card = document.createElement('div');
+    card.className = 'article-card';
+    card.innerHTML = `
+      <div class="punch-row"><span></span><span></span><span></span></div>
+      <div class="article-eyebrow">PubMed · ${a.pubmedId}</div>
+      <h4>${a.title}</h4>
+      <div class="article-meta">${a.authors || 'Autores não informados'} · ${a.journal}, ${a.year}</div>
+      <a href="${a.link}" target="_blank" rel="noopener" class="read-link">Ler no PubMed →</a>
+    `;
+    cardGrid.appendChild(card);
+  });
+}
+
+async function fetchArticles(query, append){
+  const rawQuery = query.trim();
+  if(!rawQuery){
+    resultCount.textContent = '';
+    cardGrid.innerHTML = '<div class="empty-state">Digite uma especialidade ou tema acima para buscar artigos reais no PubMed/MEDLINE.</div>';
+    loadMoreBtn.style.display = 'none';
+    return;
+  }
+
+  const translated = translateQuery(rawQuery);
+
+  if(!append){
+    currentQuery = translated;
+    currentStart = 0;
+    cardGrid.innerHTML = '';
+    resultCount.textContent = 'Buscando no PubMed...';
+    loadMoreBtn.style.display = 'none';
+  } else {
+    resultCount.textContent = 'Buscando mais resultados...';
+  }
+
+  try{
+    const res = await fetch(`https://vademed.vercel.app/api/pubmed?q=${encodeURIComponent(currentQuery)}&start=${currentStart}`);
+    const data = await res.json();
+
+    if(!res.ok || data.error){
+      resultCount.textContent = '';
+      cardGrid.innerHTML = `<div class="empty-state">Não foi possível buscar agora. Tente novamente em instantes.</div>`;
+      loadMoreBtn.style.display = 'none';
+      return;
+    }
+
+    const articles = data.articles || [];
+    totalResults = data.total || 0;
+
+    if(!append && articles.length === 0){
+      resultCount.textContent = '';
+      cardGrid.innerHTML = '<div class="empty-state">Nenhum artigo encontrado para esse termo. Tente outra palavra-chave (de preferência em inglês).</div>';
+      loadMoreBtn.style.display = 'none';
+      return;
+    }
+
+    renderCards(articles);
+    currentStart += articles.length;
+    resultCount.textContent = `${currentStart} de ${totalResults} artigos` + (translated !== rawQuery ? ` (buscado como "${translated}")` : '');
+
+    loadMoreBtn.style.display = (currentStart < totalResults) ? 'inline-block' : 'none';
+  } catch(err){
+    resultCount.textContent = '';
+    cardGrid.innerHTML = '<div class="empty-state">Erro de conexão ao buscar artigos. Verifique sua internet e tente de novo.</div>';
+    loadMoreBtn.style.display = 'none';
+  }
+}
+
+loadMoreBtn.addEventListener('click', ()=> fetchArticles(currentQuery, true));
+
+searchInput.addEventListener('input', ()=>{
+  clearTimeout(searchTimeout);
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  searchTimeout = setTimeout(()=> fetchArticles(searchInput.value, false), 500);
+});
+
+fetchArticles("", false);
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.panel).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
